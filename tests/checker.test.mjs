@@ -76,3 +76,27 @@ test("a fetch that throws (CORS-style refusal) is a fail with the reason named",
   assert.equal(report.verdict, "does-not-conform");
   assert.match(report.checks[0].detail, /CORS/);
 });
+
+test("a dropped first connection is retried once and can still pass", async () => {
+  const good = fakeFetch({
+    "agent-manifest.json": GOOD_MANIFEST,
+    "demo.network.json": GOOD_NETWORK,
+    "links.json": { version: 1, networks: { demo: {} } },
+    "nsdeploy.json": { site: "demo" },
+  });
+  let dropped = false;
+  const fetchFn = async (url, opts) => {
+    if (!dropped && url.endsWith("demo.network.json")) { dropped = true; throw new TypeError("socket closed"); }
+    return good(url, opts);
+  };
+  const report = await checkAgenticSite("https://example.com", fetchFn);
+  assert.equal(report.fails, 0);
+});
+
+test("an HTTP error status is the site's answer and is not retried into a pass", async () => {
+  let manifestCalls = 0;
+  const fetchFn = async (url) => { if (String(url).endsWith("agent-manifest.json")) manifestCalls++; return { ok: false, status: 404, headers: { get: () => null }, text: async () => "no" }; };
+  const report = await checkAgenticSite("https://missing.example", fetchFn);
+  assert.equal(report.checks.find((c) => c.id === "manifest_reachable").status, "fail");
+  assert.equal(manifestCalls, 1);
+});
