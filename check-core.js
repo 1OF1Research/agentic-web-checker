@@ -42,15 +42,26 @@ export function normalizeBase(input) {
 }
 
 async function fetchText(fetchFn, url, timeoutMs) {
-  const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
-  try {
-    const res = await fetchFn(url, { signal: controller ? controller.signal : undefined, headers: { "Accept": "application/json, text/plain, */*" } });
-    const text = await res.text();
-    return { ok: res.ok, status: res.status, text, cors: res.headers && typeof res.headers.get === "function" ? res.headers.get("access-control-allow-origin") : null };
-  } finally {
-    if (timer) clearTimeout(timer);
+  // One retry on a network-level failure only (a dropped connection, a
+  // refused read). An HTTP answer, even an error status, is never retried:
+  // it is the site's real answer. A retry that also fails reports the
+  // failure exactly as before.
+  let lastError = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 800));
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+    try {
+      const res = await fetchFn(url, { signal: controller ? controller.signal : undefined, headers: { "Accept": "application/json, text/plain, */*" } });
+      const text = await res.text();
+      return { ok: res.ok, status: res.status, text, cors: res.headers && typeof res.headers.get === "function" ? res.headers.get("access-control-allow-origin") : null };
+    } catch (error) {
+      lastError = error;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
+  throw lastError;
 }
 
 export async function checkAgenticSite(input, fetchFn, timeoutMs = 12000) {
