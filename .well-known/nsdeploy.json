@@ -1,0 +1,18 @@
+{
+  "exports": [
+    {
+      "aliases": [
+        "agentic_web_checker",
+        "conformance_guide"
+      ],
+      "front_man": "conformance_guide",
+      "network": "agentic_web_checker",
+      "url": "agentic_web_checker"
+    }
+  ],
+  "imports": [],
+  "link_updates": {
+    "mode": "browser-local"
+  },
+  "protocol": "nsdeploy-link/v1"
+}

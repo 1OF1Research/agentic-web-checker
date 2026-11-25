@@ -1,0 +1,11 @@
+{
+  "networks": [
+    {
+      "name": "agentic_web_checker"
+    }
+  ],
+  "actions": {
+    "version": 1,
+    "module": "./bridge-actions.js"
+  }
+}

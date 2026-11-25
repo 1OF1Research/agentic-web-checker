@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agentic Web Checker — does that agentic website conform?</title>
+<meta name="description" content="Paste the address of any agentic website. This page reads its public manifest and agent network, tests them against the worldwide agentic web MVP profile, and returns a plain-language card: what conforms, what does not, and what to fix first.">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="assistant.css">
+<script type="module" src="script.js"></script>
+<script type="module" src="site.js"></script>
+</head>
+<body>
+<header>
+  <h1>Agentic Web Checker</h1>
+  <p class="tagline">Does that agentic website actually conform? Paste its address and find out — in plain language, with the exact fixes in order.</p>
+</header>
+<main>
+  <section aria-labelledby="check-heading">
+    <h2 id="check-heading">Check a site</h2>
+    <form id="check-form">
+      <label for="check-url">Agentic website address</label>
+      <input id="check-url" name="url" type="text" inputmode="url" placeholder="https://example.com" required>
+      <button type="submit">Check it</button>
+    </form>
+    <div id="check-result" aria-live="polite"></div>
+    <p class="note">The check reads only what the site itself publishes: its <code>agent-manifest.json</code>, the agent network definition that file names, its <code>links.json</code> and its discovery files. Nothing is sent anywhere else, and no key is needed for the check itself. A site whose host does not allow cross-origin reads cannot be checked from a browser — the card says so when that happens, because that is itself one of the things the profile requires.</p>
+  </section>
+
+  <section aria-labelledby="how-heading">
+    <h2 id="how-heading">What conformance means</h2>
+    <p>An open agentic website publishes three things: a small JSON file that describes its agent network and what its agents can do, a runtime that runs that network in the visitor's browser, and a page where people and other agents can interact with it. The model that powers the agents is the visitor's choice — the site never pays for the visitor's questions, and no site ever receives another visitor's key.</p>
+    <p>This checker tests a site against the Worldwide Agentic Web MVP Profile 0.3: the manifest is reachable and well formed, the network definition loads and validates (its front agent exists, every agent is described), the peer link map is published, cross-origin reads are allowed, and discovery metadata is present. It is a conformance check, not a quality prize: a site can conform and still be dull, and a brilliant site that forgets its manifest cannot be found by any other agent at all.</p>
+  </section>
+
+  <section id="assistant" class="assistant" aria-labelledby="assistant-heading">
+    <h2 id="assistant-heading">Ask the checker</h2>
+    <p>Ask the assistant to check a site for you, to explain what a check means, or to turn a result into a fix list. Other agentic websites can also call this assistant's network and use the same checks.</p>
+    <p class="assistant-note">Your messages and this page's data go to the LLM provider you choose in the settings below. The checker itself only reads public files and changes nothing.</p>
+    <p id="assistant-status" role="status">Connecting the assistant… If this message stays, the assistant could not load. You can still use the page directly.</p>
+    <div id="agent-app">
+      <div data-ns-slot="header"></div>
+      <div class="assistant-panels">
+        <div data-ns-slot="chat"></div>
+        <div data-ns-slot="agents"></div>
+      </div>
+      <div data-ns-slot="settings"></div>
+    </div>
+  </section>
+</main>
+<footer>
+  <p>Built for the open agentic web. The profile this checker tests against is the Worldwide Agentic Web MVP Profile 0.3, published with the Open Agentic Web Challenge.</p>
+</footer>
+</body>
+</html>
